@@ -1,5 +1,6 @@
 package ro.pub.cs.systems.eim.lab04.contactsmanager;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.provider.ContactsContract;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -32,6 +34,7 @@ public class ContactsManagerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contacts_manager);
 
+
         saveButton = (Button) findViewById(R.id.save);
         cancelButton = (Button) findViewById(R.id.cancel);
         toggleButton = (Button) findViewById(R.id.toggle_add_fields);
@@ -43,6 +46,17 @@ public class ContactsManagerActivity extends AppCompatActivity {
         edit_company = findViewById(R.id.company);
         edit_website = findViewById(R.id.website);
         edit_im = findViewById(R.id.im);
+
+
+        Intent intent = getIntent();
+        if (intent != null) {
+            String phone = intent.getStringExtra("ro.pub.cs.systems.eim.lab04.contactsmanager.PHONE_NUMBER_KEY");
+            if (phone != null) {
+                edit_phone.setText(phone);
+            } else {
+                Toast.makeText(this, "Phone ERR", Toast.LENGTH_LONG).show();
+            }
+        }
 
         View.OnClickListener listener = new View.OnClickListener() {
 
@@ -93,12 +107,12 @@ public class ContactsManagerActivity extends AppCompatActivity {
                             contactData.add(imRow);
                         }
                         intent.putParcelableArrayListExtra(ContactsContract.Intents.Insert.DATA, contactData);
-                        startActivity(intent);
-
+                        //startActivity(intent);
+                        startActivityForResult(intent, 1);
                         break;
                     case R.id.cancel:
+                        setResult(Activity.RESULT_CANCELED, new Intent());
                         finish();
-
                         break;
                     case R.id.toggle_add_fields:
                         LinearLayout container = findViewById(R.id.add_fields);
@@ -122,5 +136,14 @@ public class ContactsManagerActivity extends AppCompatActivity {
         saveButton.setOnClickListener(listener);
         cancelButton.setOnClickListener(listener);
         toggleButton.setOnClickListener(listener);
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        switch(requestCode) {
+            case 1:
+                setResult(resultCode, new Intent());
+                finish();
+                break;
+        }
     }
 }
